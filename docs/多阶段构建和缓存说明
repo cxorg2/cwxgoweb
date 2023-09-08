@@ -1,0 +1,14 @@
+
+# docker 原生方式
+
+docker pull docker/dockerfile:1.6.0
+
+dockerfile 第一句指定解析此文件的 docker 镜像
+# syntax=docker/dockerfile:1.6.0
+
+
+RUN --mount=type=cache,id=go-mod,target=/root/.cache/go-build \
+    CGO_ENABLED=0 go build -o cwxgoweb src/main.go
+
+
+实际测试没有什么效果

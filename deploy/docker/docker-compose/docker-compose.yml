@@ -1,0 +1,18 @@
+services:
+  cwxgoweb:
+    image: registry.services.wait/cwx/cwxgoweb:${TAG}
+    build:
+      context: .
+      dockerfile: dockerfile
+    restart: unless-stopped
+
+    labels:
+      service_name: cwxgoweb
+
+    logging:
+      options:
+        # 给输出的日志添加一个字段
+        labels: "service_name"
+
+    ports:
+      - "19002:19002"

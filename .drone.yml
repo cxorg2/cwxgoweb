@@ -1,0 +1,268 @@
+kind: pipeline
+type: kubernetes
+name: cwxgoweb-dev
+service_account_name: drone
+
+clone:
+  disable: true
+
+# main 分支 + push
+trigger:
+  branch:
+    - main
+  event:
+    - push
+
+volumes:
+- name: gopath-cache
+  claim:
+    name: gobuild-cache
+    read_only: false
+
+
+steps:
+
+- name: 启动无人机
+  image: registry.services.wait/cwx/os/alpine:3.18.3
+  commands:
+    - echo "测试启动 drone 成功"
+
+- name: 克隆仓库
+  image: registry.services.wait/cwx/drone/git
+  pull: if-not-exists
+  depends_on: [启动无人机]
+  settings:
+
+    # clone 时截断以前的提交记录, 即克隆深度
+    depth: 1
+    skip_verify: true
+
+    # 读取 git 的 tag 作为环境变量 ${DRONE_TAG}
+    tags: true
+  environment:
+    GITEA_TOKEN:
+      from_secret: git_token
+
+  commands:
+    - git config --global http.sslVerify false
+
+    # 通过 token 拉取代码
+    - git clone https://chenwx:$GITEA_TOKEN@git.services.wait/chenwx/cwxgoweb.git .
+
+    # 输出最近 5 次 commit 信息
+    - git log --oneline -n 5
+    - pwd
+    - ls -a
+
+- name: 编译
+  image: registry.services.wait/cwx/golang:1.21.0
+  pull: if-not-exists
+  depends_on: [克隆仓库]
+
+  # 挂载编译缓存
+  volumes:
+  - name: gopath-cache
+    path: /go
+  commands:
+    - go env -w GOPROXY=http://nexus.services.wait/repository/proxy-go/
+    - go env -w GOSUMDB=off
+    - export CGO_ENABLED=0
+    - go build -o cwxgoweb src/main.go
+    # - go build -o cwxgoweb -ldflags '-s -w' src/main.go
+    - ls -a
+
+# 制作镜像
+- name: 生成镜像
+  image: registry.services.wait/cwx/kaniko-project/executor:v1.15.0-debug
+  pull: if-not-exists
+  depends_on: [ 编译 ]
+  environment:
+    CA_CERTIFICATE:
+      from_secret: ca_wait
+
+    DOCKER_AUTH_FILE:
+      from_secret: docker_user_wait_conf
+
+  commands:
+    # 一张内部的CA证书
+    - echo "$CA_CERTIFICATE" >> /kaniko/ssl/certs/additional-ca-cert-bundle.crt
+    # docker 仓库认证文件 .docker/config.json
+    - echo $DOCKER_AUTH_FILE > /kaniko/.docker/config.json
+
+    - /kaniko/executor
+      --context "."
+      --dockerfile "deploy/docker/drone/dockerfile"
+      --destination "registry.services.wait/cwx/cwxgoweb:latest"
+
+# 发布k8s集群
+- name: deploy
+  image: registry.services.wait/cwx/zc2638/drone-k8s-plugin:0.0.4
+  pull: if-not-exists
+  depends_on: [ 克隆仓库 ]
+  settings:
+    k8s_server: https://kubernetes.default.svc.cluster.local
+    k8s_token:
+      from_secret: k8s_token
+    k8s_ca_crt:
+      from_secret: k8s_ca_crt
+    k8s_skip_tls: false
+    namespace: cwx
+
+    templates:
+      - deploy/kubernetes/devel/deployment.yml
+      - deploy/kubernetes/devel/IngressRoute.yml
+      - deploy/kubernetes/devel/services.yml
+    # app_name: ${DRONE_REPO_NAME}
+
+    debug: true
+
+
+
+
+
+---
+# 流水线2
+# 生产环境打包, 只对带 tag 的事件触发执行
+
+kind: pipeline
+type: kubernetes
+name: cwxgoweb-pro
+service_account_name: drone
+
+# 触发器这里 tag 不能和分支一起使用, 因为 tag 和 分支是没有关系的
+trigger:
+  event:
+    - tag
+
+volumes:
+- name: gobuild-cache
+  claim:
+    name: gobuild-cache
+    read_only: false
+
+
+# 因为有个性化的 clone 需求, 所以这里关闭默认的 clone 动作
+clone:
+  disable: true
+
+steps:
+- name: 克隆仓库
+  image: registry.services.wait/cwx/drone/git
+  pull: if-not-exists
+  settings:
+    depth: 1
+    skip_verify: true
+    tags: true
+  environment:
+    GITEA_TOKEN:
+      from_secret: git_token
+
+  # 注意为了避免 tag 比 main 分支先提交的情况
+  # 这里需要固定拉取 此 tag
+  commands:
+    - git config --global http.sslVerify false
+    - git clone -b ${DRONE_TAG} --depth=1 https://chenwx:$GITEA_TOKEN@git.services.wait/chenwx/cwxgoweb.git .
+    - pwd
+    - ls -a
+
+- name: 编译
+  image: registry.services.wait/cwx/golang:1.21.0
+  pull: if-not-exists
+  depends_on: [克隆仓库]
+
+  volumes:
+  - name: gopath-cache
+    path: /go
+
+  commands:
+    # - go env -w GOPROXY=http://10.2.1.4:8081/repository/group-go/
+    - go env -w GOPROXY=http://nexus.services.wait/repository/proxy-go/
+    - go env -w GOSUMDB=off
+    - export CGO_ENABLED=0
+    - go build -o cwxgoweb src/main.go
+    # - go build -o cwxgoweb -ldflags '-s -w' src/main.go
+    - ls -a
+
+
+# 有 tag 时, 制作一个 压缩包，后续上传到 release
+- name: 打包
+  image: registry.services.wait/cwx/os/alpine:3.18.3
+  depends_on: [ 编译 ]
+  commands:
+    - ls -a
+    - tar zcvf cwxgoweb-${DRONE_TAG}.tar.gz ./cwxgoweb
+
+
+# 当生产环境打包完成后, 提交一个 release 版本到 gitea
+# gitea-release 插件只适用于有 tag 的情况
+- name: push-release
+  image: registry.services.wait/cwx/drone/plugins/gitea-release
+  pull: if-not-exists
+  depends_on: [ 打包 ]
+  environment:
+    GITEA_TOKEN:
+      from_secret: git_token
+
+  settings:
+    api_key: $GITEA_TOKEN
+    base_url: https://git.services.wait/
+    files:
+      - cwxgoweb-${DRONE_TAG}.tar.gz
+
+    # 如果存在则覆盖
+    file_exists: overwrite
+    title: 新版本发布 -${DRONE_TAG}
+
+    # 忽略 https 证书
+    insecure: true
+  # volumes:
+  #   - name: cwxCA
+  #     path: /etc/ssl/certs/ca-certificates.crt
+
+
+# 制作镜像
+- name: 生成镜像
+  image: registry.services.wait/cwx/kaniko-project/executor:v1.15.0-debug
+  pull: if-not-exists
+  depends_on: [ 编译 ]
+  environment:
+    CA_CERTIFICATE:
+      from_secret: ca_wait
+
+    DOCKER_AUTH_FILE:
+      from_secret: docker_user_wait_conf
+
+  commands:
+    # 一张内部的CA证书
+    - echo "$CA_CERTIFICATE" >> /kaniko/ssl/certs/additional-ca-cert-bundle.crt
+
+    # docker 仓库认证文件 .docker/config.json
+    - echo $DOCKER_AUTH_FILE > /kaniko/.docker/config.json
+
+    - /kaniko/executor
+      --context "."
+      --dockerfile "deploy/docker/drone/dockerfile"
+      --destination "registry.services.wait/cwx/cwxgoweb:${DRONE_TAG}"
+
+# 发布k8s集群
+- name: deploy
+  image: registry.services.wait/cwx/zc2638/drone-k8s-plugin:0.0.4
+  pull: if-not-exists
+  depends_on: [ 生成镜像 ]
+  settings:
+    k8s_server: https://kubernetes.default.svc.cluster.local
+    k8s_token:
+      from_secret: k8s_token
+    k8s_ca_crt:
+      from_secret: k8s_ca_crt
+    k8s_skip_tls: false
+    namespace: cwx
+
+    templates:
+      - deploy/kubernetes/prod/deployment.yml
+      - deploy/kubernetes/prod/IngressRoute.yml
+      - deploy/kubernetes/prod/services.yml
+
+    images_tags: ${DRONE_TAG}
+
+    debug: true

@@ -1,0 +1,28 @@
+FROM registry.services.wait/cwx/golang:1.21.0 as builder
+
+# 环境变量
+ENV GOPROXY https://goproxy.cn,direct
+
+# 创建目录
+RUN mkdir /app
+
+# 将源码复制到app目录
+ADD . /app/
+
+# 切换到app目录
+WORKDIR /app
+
+# 编译源码
+RUN CGO_ENABLED=0 go build -o cwxgoweb src/main.go
+
+# 以空白镜像为基础
+# FROM scratch
+FROM registry.services.wait/cwx/os/alpine:3.18.3
+
+WORKDIR /
+
+## 复制上层构建的文件
+COPY --from=builder /app/cwxgoweb /
+
+# 运行
+CMD ["./cwxgoweb"]

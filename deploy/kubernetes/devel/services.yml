@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: dev-cwxgoweb
+  namespace: cwx
+spec:
+  selector:
+    app: dev-cwxgoweb
+  ports:
+    - port: 80
+      targetPort: 19002

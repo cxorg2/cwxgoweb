@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cwxgoweb
+  namespace: cwx
+  labels:
+    app: cwxgoweb
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cwxgoweb
+  template:
+    metadata:
+      labels:
+        app: cwxgoweb
+    spec:
+      restartPolicy: Always
+      containers:
+      - name: cwxgoweb
+        image: registry.services.wait/cwx/cwxgoweb:{{ .env.images_tags }}
+        ports:
+        - containerPort: 19002
+        env:
+        - name: CWX_WEBSERVER_ON
+          value: "true"
+        - name: CWX_WEBSERVER_PORT
+          value: "19002"

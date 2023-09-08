@@ -1,0 +1,15 @@
+
+
+# docker
+TAG=0.0.1
+
+docker build -t registry.services.wait/cwx/cwxgoweb:${TAG} -f dockerfile .
+docker push registry.wait/cwx/cwxgoweb:${TAG}
+
+docker run --name test1 --rm -it registry.wait/cwx/cwxgoweb:${TAG} sh
+
+docker run -d --name test1 -p 19001:19001 --rm registry.wait/cwx/cwxgoweb:${TAG}
+
+
+docker build -t gotest:0.0.1 .
+docker run --rm -it gotest:0.0.1

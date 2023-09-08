@@ -1,0 +1,10 @@
+# 以空白镜像为基础
+# FROM scratch
+FROM registry.services.wait/cwx/os/alpine:3.18.3
+
+WORKDIR /
+
+COPY cwxgoweb /
+
+# 运行
+CMD ["./cwxgoweb"]

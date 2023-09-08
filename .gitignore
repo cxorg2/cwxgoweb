@@ -1,0 +1,10 @@
+# go
+
+bin/
+
+
+logs
+*.log
+.DS_Store
+*.key
+cwxgoweb
