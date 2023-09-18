@@ -32,7 +32,7 @@ jobs:
       - name: login registry
         run: |
           echo "${{ secrets.HARBOR_PW }}" | docker login -u "${{ secrets.HARBOR_USER }}" --password-stdin registry.services.wait
-          docker pull registry.services.wait/cwx/cwx-build:v1
+          docker pull registry.services.wait/cwx/cwx-build:v1.1
 
 
       - name: clone code
@@ -41,7 +41,7 @@ jobs:
 
 
       - name: 编译
-        uses: docker://registry.services.wait/cwx/cwx-build:v1
+        uses: docker://registry.services.wait/cwx/cwx-build:v1.1
         with:
           cmd: |
             go env -w GOPROXY=http://nexus.services.wait/repository/proxy-go/
