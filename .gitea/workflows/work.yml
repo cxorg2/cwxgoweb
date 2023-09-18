@@ -27,7 +27,13 @@ jobs:
           # git config --global http.sslVerify false
           git config --global http.sslCAInfo /usr/local/share/ca-certificates/cwx.crt
           git --version
+
+
+      - name: login registry
+        run: |
+          echo "${{ secrets.HARBOR_PW }}" | docker login -u "${{ secrets.HARBOR_USER }}" --password-stdin registry.services.wait
           docker pull registry.services.wait/cwx/cwx-build:v1
+
 
       - name: clone code
         run: |
