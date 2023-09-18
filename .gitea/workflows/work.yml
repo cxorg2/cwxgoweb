@@ -28,12 +28,9 @@ jobs:
           git config --global http.sslCAInfo /usr/local/share/ca-certificates/cwx.crt
           git --version
 
-          go version
-
       - name: clone code
         run: |
           git clone https://chenwx:${{secrets.CHENWX_TOKEN}}@git.services.wait/chenwx/cwxgoweb.git .
-
 
 
       - name: 编译
