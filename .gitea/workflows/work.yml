@@ -27,6 +27,7 @@ jobs:
           # git config --global http.sslVerify false
           git config --global http.sslCAInfo /usr/local/share/ca-certificates/cwx.crt
           git --version
+          docker pull registry.services.wait/cwx/cwx-build:v1
 
       - name: clone code
         run: |
