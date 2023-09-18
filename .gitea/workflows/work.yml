@@ -44,6 +44,7 @@ jobs:
         uses: docker://registry.services.wait/cwx/cwx-build:v1.1
         with:
           cmd: |
+            ls -a
             go env -w GOPROXY=http://nexus.services.wait/repository/proxy-go/
             go env -w GOSUMDB=off
             export CGO_ENABLED=0
