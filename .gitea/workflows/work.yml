@@ -28,12 +28,9 @@ jobs:
           git config --global http.sslCAInfo /usr/local/share/ca-certificates/cwx.crt
           git --version
 
-
-      - name: login registry
-        run: |
           echo "${{ secrets.HARBOR_PW }}" | docker login -u "${{ secrets.HARBOR_USER }}" --password-stdin registry.services.wait
           docker pull registry.services.wait/cwx/cwx-build:v1.2
-
+          docker pull registry.services.wait/cwx/kaniko-project/executor:v1.15.0-debug
 
       - name: clone code
         run: |
@@ -52,42 +49,15 @@ jobs:
             ls -a
 
 
-        # # 挂载编译缓存
-        # volumes:
-        # - name: gopath-cache
-        #   path: /go
-        # commands:
-        #   - go env -w GOPROXY=http://nexus.services.wait/repository/proxy-go/
-        #   - go env -w GOSUMDB=off
-        #   - export CGO_ENABLED=0
-        #   - go build -o cwxgoweb src/main.go
-        #   # - go build -o cwxgoweb -ldflags '-s -w' src/main.go
-        #   - ls -a
+      # - name: 生成镜像
+      #   uses: docker://registry.services.wait/cwx/kaniko-project/executor:v1.15.0-debug
+      #   commands:
+      #     # 一张内部的CA证书
+      #     - echo "${{secrets.CWX_CA_PEM}}" >> /kaniko/ssl/certs/additional-ca-cert-bundle.crt
+      #     # docker 仓库认证文件 .docker/config.json
+      #     - echo "${{secrets.DOCKER_CONFIG_WAIT}}" > /kaniko/.docker/config.json
 
-
-
-
-      # - name: 编译-build
-      #   uses: docker://registry.services.wait/cwx/actions-hugo:ubuntu-v0.118
-
-      # - name: 测试-test
-      #   run: |
-      #     ls public/
-
-      # - name: 发布-deploy
-      #   uses: docker://registry.services.wait/cwx/ssh-scp-action:v1
-      #   with:
-      #     key: ${{ secrets.ED25519_KEY }}
-      #     host: 10.2.1.5
-      #     port: 22
-      #     user: wait
-      #     ssh_before: |
-      #       rm -rf /data/nfs_private/blog-web-data/blog/*
-      #     scp: |
-      #       public/* wait@10.2.1.5:/data/nfs_private/blog-web-data/blog/
-
-          # then run these commands
-          # ssh_after: |
-          #   echo $HELLO
-          #   echo $MESSAGE
-          #   ls -lath
+      #     - /kaniko/executor
+      #       --context "."
+      #       --dockerfile "deploy/docker/drone/dockerfile"
+      #       --destination "registry.services.wait/cwx/cwxgoweb:latest"
