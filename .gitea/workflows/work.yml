@@ -1,0 +1,63 @@
+
+name: cwxgoweb
+
+on:
+  push:
+    branches: [ dev ]
+
+jobs:
+  hugo-task:
+    runs-on: ubuntu-latest
+
+    container:
+      # 不使用默认的 node:16 的基础容器镜像, 使用支持docker的act镜像
+      image: registry.services.wait/cwx/catthehacker/ubuntu:act-22.04
+      # volumes:
+
+    steps:
+      - name: set ca
+        # 注意这个位置单独拉出去, 是因为多行字符串会被解析为多行命令导致, 是个 bug
+        run: echo -e "${{ secrets.CWX_CA_PEM }}" >> /usr/local/share/ca-certificates/cwx.crt
+
+
+      - name: Set run env
+        run: |
+          update-ca-certificates
+
+          # git config --global http.sslVerify false
+          git config --global http.sslCAInfo /usr/local/share/ca-certificates/cwx.crt
+          git --version
+
+          echo "${{ secrets.HARBOR_PW }}" | docker login -u "${{ secrets.HARBOR_USER }}" --password-stdin registry.services.wait
+          docker pull registry.services.wait/cwx/cwx-build:v1.2
+          docker pull registry.services.wait/cwx/kaniko-project/executor:v1.15.0-debug
+
+      - name: clone code
+        run: |
+          git clone https://chenwx:${{secrets.CHENWX_TOKEN}}@git.services.wait/chenwx/cwxgoweb.git .
+
+
+      - name: 编译
+        uses: docker://registry.services.wait/cwx/cwx-build:v1.2
+        with:
+          cmd: |
+            ls -a
+            go env -w GOPROXY=http://nexus.services.wait/repository/proxy-go/
+            go env -w GOSUMDB=off
+            export CGO_ENABLED=0
+            go build -o cwxgoweb src/main.go
+            ls -a
+
+
+      # - name: 生成镜像
+      #   uses: docker://registry.services.wait/cwx/kaniko-project/executor:v1.15.0-debug
+      #   commands:
+      #     # 一张内部的CA证书
+      #     - echo "${{secrets.CWX_CA_PEM}}" >> /kaniko/ssl/certs/additional-ca-cert-bundle.crt
+      #     # docker 仓库认证文件 .docker/config.json
+      #     - echo "${{secrets.DOCKER_CONFIG_WAIT}}" > /kaniko/.docker/config.json
+
+      #     - /kaniko/executor
+      #       --context "."
+      #       --dockerfile "deploy/docker/drone/dockerfile"
+      #       --destination "registry.services.wait/cwx/cwxgoweb:latest"
