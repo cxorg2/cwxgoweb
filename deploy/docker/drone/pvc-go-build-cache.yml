@@ -1,0 +1,13 @@
+# 为 golang bulid 准备的 cache
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gobuild-cache
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: nfs-sc

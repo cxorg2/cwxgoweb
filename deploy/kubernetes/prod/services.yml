@@ -9,3 +9,5 @@ spec:
   ports:
     - port: 80
       targetPort: 19002
+    - port: 19003
+      targetPort: 19003
