@@ -1,0 +1,14 @@
+
+# GET /api/pv
+返回所请求页面的 pv 数
+
+根据 Referer 来判断当前页面
+如果为空且 url 在正常, 则在数据库新增此 url 项
+如果数据库有此 url, 则返回 pv 数, 并+1
+
+## test
+curl http://127.0.0.1:19005/api/pv -e abc
+curl http://127.0.0.1:19005/api/pv -e "https://blog.services.wait/p/xxxx2.html"
+
+curl http://myblog-api/api/pv -e "https://blog.services.wait/p/xxxx2.html"
+curl http://myblog-api/api/pv -e "https://blog.services.wait/p/about-my-website.html"

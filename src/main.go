@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"git.services.wait/chenwx/cwxgoweb/src/api"
+	"git.services.wait/chenwx/cwxgoweb/src/blog"
 	"git.services.wait/chenwx/cwxgoweb/src/config"
 	"git.services.wait/chenwx/cwxgoweb/src/generatedata"
 	"git.services.wait/chenwx/cwxgoweb/src/ginweb"
@@ -37,6 +38,10 @@ func main() {
 
 	if g_conf.ConfRedis.On {
 		go generatedata.RedisTask(g_conf.ConfRedis)
+	}
+
+	if g_conf.ConfBlogApi.On {
+		go blog.Server(g_conf.ConfBlogApi, g_conf.ConfBlogMysql)
 	}
 
 	for {

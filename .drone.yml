@@ -98,7 +98,7 @@ steps:
 - name: deploy
   image: registry.services.wait/cwx/zc2638/drone-k8s-plugin:0.0.4
   pull: if-not-exists
-  depends_on: [ 克隆仓库 ]
+  depends_on: [ 生成镜像 ]
   settings:
     k8s_server: https://kubernetes.default.svc.cluster.local
     k8s_token:

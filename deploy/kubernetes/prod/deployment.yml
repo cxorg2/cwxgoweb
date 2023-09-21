@@ -23,7 +23,26 @@ spec:
         ports:
         - containerPort: 19002
         env:
-        - name: CWX_WEBSERVER_ON
+        - name: CWX_WEBSERVER_ENABLE
           value: "true"
         - name: CWX_WEBSERVER_PORT
           value: "19002"
+
+        - name: CWX_DB_ADDR
+          value: "wcn7.server.wait"
+        - name: CWX_DB_PORT
+          value: "3306"
+        - name: CWX_DB_USER
+          value: "wait"
+        - name: CWX_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: wait-secret
+              key: wait-pw
+        - name: CWX_DB_CHARSET
+          value: "utf8mb4"
+        - name: CWX_GENERATEDATA_DB_NAME
+          value: "doc"
+
+        - name: CWX_METRICS_PORT
+          value: "19003"
