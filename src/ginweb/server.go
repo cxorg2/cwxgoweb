@@ -1,6 +1,7 @@
 package ginweb
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -9,7 +10,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Server1(conf config.ConfGinWeb) {
+func Server1(cfg config.GinWeb) {
+
+	if !cfg.Enable {
+		fmt.Println("model: no enable GinWeb")
+		return
+	}
+	fmt.Println("model: enable GinWeb")
+
 	r := gin.Default() // 创建实例, 这个实例即 WSGI 应用程序
 
 	// 设置受信任的代理
@@ -55,10 +63,10 @@ func Server1(conf config.ConfGinWeb) {
 	// listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 	// r.Run()
 
-	addr := ":" + strconv.Itoa(conf.Port)
-	log.Printf("gin web listen server %s\n", addr)
+	addr := ":" + strconv.Itoa(cfg.Port)
+	log.Printf("GinWeb: listen server %s\n", addr)
 	err := r.Run(addr)
 	if err != nil {
-		log.Println("listen gin web server error ", err)
+		log.Println("GinWeb: listen gin web server error ", err)
 	}
 }

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -8,17 +9,24 @@ import (
 	"git.services.wait/chenwx/cwxgoweb/src/config"
 )
 
-func Webserver(conf config.ConfWebServer) {
-	log.Println("task: --- webServer start")
+func Webserver(cfg config.WebServer) {
 
-	addr := ":" + strconv.Itoa(conf.Port)
+	if !cfg.Enable {
+		fmt.Println("model: no enable WebServer")
+		return
+	}
+
+	fmt.Println("model: enable WebServer")
+	log.Println("WebServer: --- webServer start")
+
+	addr := ":" + strconv.Itoa(cfg.Port)
 
 	http.HandleFunc("/", rootRoute)
 
-	log.Printf("WebServer addr: http://127.0.0.1%s/\n", addr)
+	log.Printf("WebServer: addr: http://127.0.0.1%s/\n", addr)
 
 	err := http.ListenAndServe(addr, nil)
 	if err != nil {
-		log.Println("服务器开启错误: ", err)
+		log.Println("WebServer: 服务器开启错误: ", err)
 	}
 }

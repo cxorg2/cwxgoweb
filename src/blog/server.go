@@ -3,9 +3,6 @@ package blog
 import (
 	"errors"
 	"log"
-
-	// "myblog-api/src/config"
-	// "myblog-api/src/db"
 	"net/http"
 	net_url "net/url"
 	"regexp"
@@ -68,9 +65,9 @@ func getPv(c *gin.Context) {
 	c.String(http.StatusOK, strconv.Itoa(num))
 }
 
-func Server(conf config.ConfBlogApi, confdb config.ConfBlogMysql) {
+func Server(cfg config.Blog) {
 
-	db := &WorkDB{Dsn: confdb.Dsn}
+	db := &WorkDB{Dsn: cfg.Mysql.Dsn}
 	r := gin.Default()
 	r.SetTrustedProxies([]string{"127.0.0.1"})
 
@@ -79,7 +76,7 @@ func Server(conf config.ConfBlogApi, confdb config.ConfBlogMysql) {
 
 	r.GET("/api/pv", getPv)
 
-	addr := ":" + conf.Port
+	addr := ":" + cfg.Api.Port
 	log.Printf("gin web listen server %s\n", addr)
 	err := r.Run(addr)
 	if err != nil {

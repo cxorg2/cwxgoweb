@@ -1,7 +1,8 @@
-package generatedata
+package stress
 
 import (
 	"log"
+	"strconv"
 	"time"
 
 	"git.services.wait/chenwx/cwxgoweb/src/config"
@@ -53,9 +54,9 @@ func getOneData() HostInfo {
 	return data
 }
 
-func MysqlTask(conf config.ConfMysql) {
+func MysqlTask(cfg config.Stress) {
 
-	db := GetSession(conf.Dsn)
+	db := GetSession(cfg.Mysql.Dsn)
 	log.Println("task: --- generate data mysql start")
 
 	// 定时计数器
@@ -65,7 +66,8 @@ func MysqlTask(conf config.ConfMysql) {
 		data := getOneData()
 		db.Create(&data)
 
-		time.Sleep(time.Duration(conf.SleepMs))
+		i, _ := strconv.ParseInt(cfg.Mysql.SleepMs, 10, 64)
+		time.Sleep(time.Duration(i))
 		insertCount += 1
 		metrics.InsertDB.Inc()
 		// insertDB.Inc()

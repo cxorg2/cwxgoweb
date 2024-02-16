@@ -1,4 +1,4 @@
-package generatedata
+package stress
 
 import (
 	"context"
@@ -18,7 +18,7 @@ import (
 var redisCmdRunNum int64
 var ctx = context.Background()
 
-func RedisTask(conf config.ConfRedis) {
+func RedisTask(cfg config.Stress) {
 	log.Println("task: --- generate data redis start")
 	// var count int64         // 命令执行次数
 	var scanEndDelNum int64 // 批量删除时实际删除数量
@@ -30,7 +30,7 @@ func RedisTask(conf config.ConfRedis) {
 	// 	return
 	// }
 
-	rdb := getRedisSession(conf.RedisAddress, conf.RedisPort)
+	rdb := getRedisSession(cfg.Redis.Address, cfg.Redis.Port)
 	defer rdb.Close()
 
 	// 定时计数器
@@ -92,8 +92,9 @@ func RedisTask(conf config.ConfRedis) {
 
 		}
 
+		int_sleep, _ := strconv.Atoi(cfg.Redis.SleepMs)
 		// 每轮操作中的延迟暂停
-		time.Sleep(unit.RandTimeMillisecond(conf.SleepMs))
+		time.Sleep(unit.RandTimeMillisecond(int_sleep))
 	}
 
 }
