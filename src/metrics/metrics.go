@@ -1,12 +1,10 @@
 package metrics
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
 
-	"git.services.wait/chenwx/cwxgoweb/src/config"
 	"git.services.wait/chenwx/cwxgoweb/src/unit"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -42,14 +40,14 @@ func init() {
 	prometheus.MustRegister(RedisCmdNum)
 }
 
-func HttpServerMetrics(cfg config.Metrics) {
+func HttpServerMetrics(cfg MetricsConf) {
 
 	if !cfg.Enable {
-		fmt.Println("model: no enable Metrics")
+		log.Println("model: no enable Metrics")
 		return
 	}
 
-	fmt.Println("model: enable Metrics")
+	log.Println("model: enable Metrics")
 	log.Println("metrics: start")
 	localAddr := unit.GetlocalIP()
 	log.Printf("metrics: local addr: http://%s:%d/metrics\n", localAddr, cfg.Port)

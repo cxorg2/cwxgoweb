@@ -1,22 +1,19 @@
 package api
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
-
-	"git.services.wait/chenwx/cwxgoweb/src/config"
 )
 
-func Webserver(cfg config.WebServer) {
+func Webserver(cfg WebServerConf) {
 
 	if !cfg.Enable {
-		fmt.Println("model: no enable WebServer")
+		log.Println("model: no enable WebServer")
 		return
 	}
 
-	fmt.Println("model: enable WebServer")
+	log.Println("model: enable WebServer")
 	log.Println("WebServer: --- webServer start")
 
 	addr := ":" + strconv.Itoa(cfg.Port)

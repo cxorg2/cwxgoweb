@@ -1,47 +1,40 @@
-package config
+package blog
 
 import (
 	"fmt"
 	"os"
 
+	"git.services.wait/chenwx/cwxgoweb/src/common/dbmysql"
 	"git.services.wait/chenwx/cwxgoweb/src/unit"
 )
 
-// BLOG
-type Blog struct {
-	Api struct {
-		Enable bool
-		Port   string
-	}
-
-	Mysql struct {
-		Enable   bool
-		Address  string
-		User     string
-		Password string
-		Dbname   string
-		Port     string
-		Dsn      string
-		CharSet  string
-	}
+type BlogMysql struct {
+	Enable bool
+	*dbmysql.MysqlConf
 }
 
-func (C *Blog) getConf() {
+// BLOG
+type BlogConf struct {
+	Enable bool
+	Port   string
+	Mysql  BlogMysql
+}
+
+func (C *BlogConf) GetEnvConf() {
 	if unit.IsTrue(os.Getenv("CWX_BLOG_API_ENABLE")) {
-		C.Api.Enable = true
+		C.Enable = true
 		port := os.Getenv("CWX_BLOG_API_PORT")
 		if port == "" {
 			port = "19001"
 		}
-		C.Api.Port = port
+		C.Port = port
 	}
 
 	if unit.IsTrue(os.Getenv("CWX_BLOG_MYSQL_ENABLE")) {
 		C.Mysql.Enable = true
+		var m dbmysql.MysqlConf
+		C.Mysql.MysqlConf = &m
 
-		m := &C.Mysql
-
-		m.Enable = true
 		m.Address = os.Getenv("CWX_BLOG_MYSQL_ADDR")
 		m.Port = os.Getenv("CWX_BLOG_MYSQL_PORT")
 		m.User = os.Getenv("CWX_BLOG_MYSQL_USER")

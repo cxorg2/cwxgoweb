@@ -1,4 +1,4 @@
-package config
+package ginweb
 
 import (
 	"log"
@@ -14,7 +14,7 @@ type GinWeb struct {
 	Port   int
 }
 
-func (C *GinWeb) getConf() {
+func (C *GinWeb) GetEnvConf() {
 	var err error
 	if unit.IsTrue(os.Getenv("CWX_GINWEB_ENABLE")) {
 		C.Enable = true

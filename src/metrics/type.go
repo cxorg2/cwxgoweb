@@ -1,19 +1,19 @@
-package config
+package metrics
 
 import (
-	"fmt"
+	"log"
 	"os"
 	"strconv"
 
 	"git.services.wait/chenwx/cwxgoweb/src/unit"
 )
 
-type Metrics struct {
+type MetricsConf struct {
 	Enable bool
 	Port   int
 }
 
-func (C *Metrics) getConf() {
+func (C *MetricsConf) GetEnvConf() {
 
 	if unit.IsTrue(os.Getenv("CWX_METRICS_ENABLE")) {
 		C.Enable = true
@@ -25,7 +25,7 @@ func (C *Metrics) getConf() {
 
 	portInt, err := strconv.Atoi(port)
 	if err != nil {
-		fmt.Println("get Metrics port error")
+		log.Println("get Metrics port error")
 		os.Exit(1)
 	}
 

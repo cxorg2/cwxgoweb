@@ -24,9 +24,9 @@ func readfile(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func writefile() {
+// func writefile() {
 
-}
+// }
 
 // 获取请求的源ip
 func getIP(w http.ResponseWriter, r *http.Request) {

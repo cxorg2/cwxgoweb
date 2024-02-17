@@ -1,4 +1,4 @@
-package config
+package api
 
 import (
 	"log"
@@ -9,13 +9,13 @@ import (
 )
 
 // webServer 模块
-type WebServer struct {
+type WebServerConf struct {
 	Enable bool
 	Port   int
 }
 
 // 获取webserver配置
-func (C *WebServer) getConf() {
+func (C *WebServerConf) GetEnvConf() {
 
 	if unit.IsTrue(os.Getenv("CWX_WEBSERVER_ENABLE")) {
 		C.Enable = true

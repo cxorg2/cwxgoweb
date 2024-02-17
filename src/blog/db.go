@@ -1,25 +1,13 @@
 package blog
 
-import (
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
-)
+import dbmysql "git.services.wait/chenwx/cwxgoweb/src/common/dbmysql"
 
-type WorkDB struct {
-	Dsn string
+type docDB struct {
+	db *dbmysql.MysqlConf
 }
 
-func (d *WorkDB) GetSession() *gorm.DB {
-	db, err := gorm.Open(mysql.Open(d.Dsn), &gorm.Config{})
-
-	if err != nil {
-		panic(err)
-	}
-	return db
-}
-
-func (d *WorkDB) GetDocPv(url string) int {
-	session := d.GetSession()
+func (d *docDB) GetDocPv(url string) int {
+	session := d.db.GetSession()
 	var doc T_doc_access
 
 	return doc.getPv(session, url)

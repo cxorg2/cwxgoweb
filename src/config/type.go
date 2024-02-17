@@ -4,57 +4,53 @@ import (
 	"flag"
 	"log"
 
-	"git.services.wait/chenwx/cwxgoweb/src/unit"
+	"git.services.wait/chenwx/cwxgoweb/src/api"
+	"git.services.wait/chenwx/cwxgoweb/src/base"
+	"git.services.wait/chenwx/cwxgoweb/src/blog"
+	"git.services.wait/chenwx/cwxgoweb/src/generatedata"
+	"git.services.wait/chenwx/cwxgoweb/src/ginweb"
+	"git.services.wait/chenwx/cwxgoweb/src/logtask"
+	"git.services.wait/chenwx/cwxgoweb/src/metrics"
+	"git.services.wait/chenwx/cwxgoweb/src/stress"
+	"github.com/joho/godotenv"
 )
-
-type Redis struct {
-	Address      string
-	Port         string
-	AuthPassword string
-}
-
-type Mysql struct {
-	Address  string
-	User     string
-	Password string
-	Dbname   string
-	Port     string
-	Dsn      string
-	CharSet  string
-}
 
 // 全局配置
 type GlobalConf struct {
-	AppConfig
-	WebServer
-	GinWeb
-	LogTask
-	Stress
-	Metrics
-	Blog
+	base.BaseConfig
+	api.WebServerConf
+	ginweb.GinWeb
+	logtask.LogTaskConf
+	metrics.MetricsConf
+	generatedata.GenerateConf
+	blog.BlogConf
+	stress.StressConf
 }
 
-// 解析本地参数
-func (g_conf *GlobalConf) getCmdArg() {
-	var stressSize int
-	var localAddr string
+var G_CONF GlobalConf
 
-	flag.IntVar(&stressSize, "p", 0, "pressure 1: low, 2: medium, 3: high; default 0 get consul")
-	flag.StringVar(&localAddr, "n", "", "local ipaddress, default: 10.x.x.x")
+func init() {
+
+	err := godotenv.Load()
+	if err != nil {
+		// log.Fatal("Error loading .env file")
+		log.Println("no found .env file")
+	}
+
+	G_CONF.BaseConfig.GetEnvConf()
+	G_CONF.GenerateConf.GetEnvConf()
+	G_CONF.BlogConf.GetEnvConf()
+
+	G_CONF.MetricsConf.GetEnvConf()
+	G_CONF.WebServerConf.GetEnvConf()
+	G_CONF.GinWeb.GetEnvConf()
+
+	G_CONF.LogTaskConf.GetEnvConf()
+	G_CONF.StressConf.GetEnvConf()
+
+	// 获取命令行参数, 高优先级覆盖环境变量的配置
+	G_CONF.BaseConfig.GetCmdArgs()
+	G_CONF.GenerateConf.GetCmdArgs()
+	G_CONF.StressConf.GetCmdArgs()
 	flag.Parse()
-
-	// 有设置
-	if len(localAddr) != 0 {
-		localAddr = unit.GetlocalIP()
-		g_conf.AppConfig.LocalAddr = localAddr
-	}
-
-	// 如果没有配置 modelSize, 则使用 env 配置
-	if stressSize == 0 {
-		log.Println("arg modelSize 0; use env conf")
-		return
-	}
-
-	// setStress(stressSize, g_conf)
-
 }
