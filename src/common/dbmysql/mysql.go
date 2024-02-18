@@ -1,6 +1,9 @@
 package dbmysql
 
 import (
+	"database/sql"
+	"log"
+
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -20,6 +23,16 @@ func (C *MysqlConf) GetSession() *gorm.DB {
 
 	if err != nil {
 		panic(err)
+	}
+	return db
+}
+
+// 非 orm, 原始SQL
+func (C *MysqlConf) GetSessionSqlDB(dsn string) *sql.DB {
+	// "wait:passw0rd@tcp(39.106.0.117:39008)/mytest?parseTime=true"
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		log.Fatal(err)
 	}
 	return db
 }
