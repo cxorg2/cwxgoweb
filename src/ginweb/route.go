@@ -16,6 +16,7 @@ func set_route(r *gin.Engine) {
 
 	// 路径解析
 	r.GET("/user/:name", getName)
+	r.POST("/api/wx/webhook", wxwebhook)
 
 	// 参数解析
 	// http://127.0.0.1:8080/users?name=chenwx

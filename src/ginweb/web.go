@@ -1,6 +1,7 @@
 package ginweb
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -8,7 +9,11 @@ import (
 
 // 返回一个 字符串
 func root(c *gin.Context) {
-	c.String(http.StatusOK, "Who are you?")
+	// c.String(http.StatusOK, "Who are you?")
+	c.String(http.StatusOK, "")
+	log.Println(c.Request.URL)
+	log.Println(c.Request.Header)
+	log.Println(c.Request.Body)
 	// c.String(200, "Who are you?")
 }
 
@@ -17,6 +22,27 @@ func ping(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "pong",
 	})
+}
+
+func wxwebhook(c *gin.Context) {
+	signature := c.Query("signature")
+
+	timestamp := c.Query("timestamp")
+
+	nonce := c.Query("nonce")
+
+	openid := c.Query("openid")
+
+	log.Println(signature)
+	log.Println(timestamp)
+	log.Println(nonce)
+	log.Println(openid)
+
+	c.String(http.StatusOK, "")
+	log.Println(c.Request.URL)
+	log.Println(c.Request.Header)
+	log.Println(c.Request.Body)
+
 }
 
 // url 路径
