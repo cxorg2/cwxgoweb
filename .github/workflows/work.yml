@@ -1,6 +1,8 @@
 
-name: cwxgoweb
+# 工作流名称
+name: auto build
 
+# 触发事件
 on:
   push:
     branches: [ main ]
@@ -9,6 +11,7 @@ env:
   APP_NAME: myapp
 
 jobs:
+  # 多个作业是并行运行的
   build-and-deploy:
     name: 编译go程序
     # 需要设定为 私有运行器
@@ -23,10 +26,18 @@ jobs:
       #   with:
       #     go-version: '1.21'
 
-      - name: 编译程序
-        run: |
-          export PATH=/opt/go/bin:$PATH
-          export GOPROXY='https://goproxy.cn,direct'
-          /opt/go/bin/go version
-          go version
-          cd cmd && go build -o app
+      # - name: 编译程序
+      #   run: |
+      #     export PATH=/opt/go/bin:$PATH
+      #     export GOPROXY='https://goproxy.cn,direct'
+      #     /opt/go/bin/go version
+      #     go version
+      #     cd cmd && go build -o app
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.21'
+
+    - name: Build
+      run: cd cmd && go build -o app
