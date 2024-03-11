@@ -1,0 +1,28 @@
+
+name: cwxgoweb
+
+on:
+  push:
+    branches: [ main ]
+
+env:
+  APP_NAME: myapp
+
+jobs:
+  build-and-deploy:
+    # 需要设定为 私有运行器
+    runs-on: self-hosted
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@master
+
+      - name: 设置环境 Golang 环境
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.21
+
+      - name: 构建 BuiLd
+        run: |
+          cd cmd && go build -o app
+
