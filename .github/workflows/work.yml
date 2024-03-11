@@ -13,7 +13,7 @@ env:
 jobs:
   # 多个作业是并行运行的
   build-and-deploy:
-    name: 编译go程序
+
     # 需要设定为 私有运行器
     runs-on: self-hosted
 
