@@ -23,18 +23,10 @@ jobs:
       #   with:
       #     go-version: '1.21'
 
-      - name: 设置私有仓库和GoProxy
+      - name: 编译程序
         run: |
           export PATH=/opt/go/bin:$PATH
           export GOPROXY='https://goproxy.cn,direct'
-
-      - name: out go version
-        run: |
           /opt/go/bin/go version
           go version
-
-      - name: 构建 BuiLd
-        run: |
           cd cmd && go build -o app
-
-
