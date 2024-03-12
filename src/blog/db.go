@@ -1,5 +1,6 @@
 package blog
 
+<<<<<<< HEAD
 import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -20,6 +21,16 @@ func (d *WorkDB) GetSession() *gorm.DB {
 
 func (d *WorkDB) GetDocPv(url string) int {
 	session := d.GetSession()
+=======
+import dbmysql "git.services.wait/chenwx/cwxgoweb/src/common/dbmysql"
+
+type docDB struct {
+	db *dbmysql.MysqlConf
+}
+
+func (d *docDB) GetDocPv(url string) int {
+	session := d.db.GetSession()
+>>>>>>> main
 	var doc T_doc_access
 
 	return doc.getPv(session, url)

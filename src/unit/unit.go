@@ -2,7 +2,6 @@ package unit
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"net"
 	"strings"
@@ -36,7 +35,7 @@ func getLocalIPaddressPrefix(addHeader string) (string, error) {
 func GetlocalIP() (ip string) {
 	ipaddr, err := getLocalIPaddressPrefix("10.")
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Println(err.Error())
 		panic("get local ip err")
 	}
 	return ipaddr

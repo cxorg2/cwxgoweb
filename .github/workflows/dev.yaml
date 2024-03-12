@@ -1,0 +1,31 @@
+
+name: 开发环境自动构建
+
+on:
+  push:
+    branches: [ dev ]
+
+env:
+  APP_NAME: myapp
+
+jobs:
+  build-and-deploy:
+    name: 编译go程序 dev env
+
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout 检出代码 dev
+        uses: actions/checkout@main
+
+      - name: out system env
+        run: |
+          pwd
+          env
+          git log
+          git branch
+          go version
+          go env
+
+      - name: Build - local go env go1.22.1
+        run: cd cmd && go build -o app

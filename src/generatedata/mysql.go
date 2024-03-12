@@ -2,19 +2,17 @@ package generatedata
 
 import (
 	"log"
+	"strconv"
 	"time"
 
-	"git.services.wait/chenwx/cwxgoweb/src/config"
 	"git.services.wait/chenwx/cwxgoweb/src/metrics"
 	"git.services.wait/chenwx/cwxgoweb/src/unit"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
 )
 
 // mysql insert number
 var insertCount int64
 
-type HostInfo struct {
+type hostInfo struct {
 	// gorm.Model
 	Id         int       `gorm:"primary_key"`
 	Itime      time.Time `gorm:"autoCreateTime;"`
@@ -25,25 +23,25 @@ type HostInfo struct {
 	Status     int       `gorm:"not null;"`
 }
 
-func (HostInfo) TableName() string {
+func (hostInfo) TableName() string {
 	return "t_host_info"
 }
 
-func GetSession(dsn string) *gorm.DB {
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+// func getSession(dsn string) *gorm.DB {
+// 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
-	if err != nil {
-		panic(err)
-	}
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	return db
-}
+// 	return db
+// }
 
-func getOneData() HostInfo {
+func getOneData() hostInfo {
 	currTime := time.Now()
 	oldTime := currTime.Add(-time.Hour * 1) // 一个小时前
 
-	var data = HostInfo{
+	var data = hostInfo{
 		Ctime:      oldTime,
 		Ip:         unit.GetlocalIP(),
 		Cpu:        unit.RandCpu(),
@@ -53,10 +51,10 @@ func getOneData() HostInfo {
 	return data
 }
 
-func MysqlTask(conf config.ConfMysql) {
+func mysqlTask(cfg GenerateConf) {
+	db := cfg.Mysql.MysqlConf.GetSession()
 
-	db := GetSession(conf.Dsn)
-	log.Println("task: --- generate data mysql start")
+	log.Println("generatedata: to mysql start")
 
 	// 定时计数器
 	go unit.CountNumTicker("mysql", &insertCount)
@@ -65,7 +63,8 @@ func MysqlTask(conf config.ConfMysql) {
 		data := getOneData()
 		db.Create(&data)
 
-		time.Sleep(time.Duration(conf.SleepMs))
+		i, _ := strconv.ParseInt(cfg.Mysql.SleepMs, 10, 64)
+		time.Sleep(time.Duration(i))
 		insertCount += 1
 		metrics.InsertDB.Inc()
 		// insertDB.Inc()

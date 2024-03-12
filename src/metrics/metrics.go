@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"git.services.wait/chenwx/cwxgoweb/src/config"
 	"git.services.wait/chenwx/cwxgoweb/src/unit"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -41,12 +40,18 @@ func init() {
 	prometheus.MustRegister(RedisCmdNum)
 }
 
-func HttpServerMetrics(conf config.ConfMetrics) {
+func HttpServerMetrics(cfg MetricsConf) {
 
-	log.Println("task: --- metrics start")
+	if !cfg.Enable {
+		log.Println("model: no enable Metrics")
+		return
+	}
+
+	log.Println("model: enable Metrics")
+	log.Println("metrics: start")
 	localAddr := unit.GetlocalIP()
-	log.Printf("local Metrics addr: http://%s:%d/metrics\n", localAddr, conf.MetricsPort)
+	log.Printf("metrics: local addr: http://%s:%d/metrics\n", localAddr, cfg.Port)
 
 	http.Handle("/metrics", promhttp.Handler())
-	http.ListenAndServe(":"+strconv.Itoa(conf.MetricsPort), nil)
+	http.ListenAndServe(":"+strconv.Itoa(cfg.Port), nil)
 }
