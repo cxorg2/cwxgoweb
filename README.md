@@ -1,6 +1,9 @@
 
 [![Build Status](https://drone.services.wait/api/badges/chenwx/cwxgoweb/status.svg)](https://drone.services.wait/chenwx/cwxgoweb)
 
+GITHUB 自动构建状态
+![example workflow](https://github.com/github/docs/actions/workflows/work.yml/badge.svg)
+
 # 描述
 
 一个 golang 的练手综合项目

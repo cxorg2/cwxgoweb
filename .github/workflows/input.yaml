@@ -1,0 +1,48 @@
+
+name: 手工触发编译
+
+on:
+  workflow_dispatch:
+    inputs:
+      task_type:
+        description: '发布环境'
+        # 必须项目
+        required: true
+        default: 'dev'
+        # 选择器
+        type: choice
+        # 提供的选项
+        options:
+        - pro
+        - dev
+        - test
+
+
+env:
+  APP_NAME: myapp
+
+jobs:
+  build-and-deploy:
+    name: 编译go程序
+
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout 检出代码
+        uses: actions/checkout@main
+
+      - name: out task_type
+        run: echo $TASK_TYPE
+
+      - name: out system env
+        run: |
+          pwd
+          env
+          git log
+          git branch
+          go version
+          go env
+
+      - name: Build - local go env go1.22.1
+        run: |
+          cd cmd && go build -o app
