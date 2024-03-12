@@ -11,6 +11,7 @@ env:
 jobs:
   build-and-deploy:
     name: 编译go程序
+
     runs-on: self-hosted
 
     steps:
