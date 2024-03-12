@@ -65,17 +65,3 @@ type ConfBlogMysql struct {
 	Dsn         string
 	ConfSourcce string // 配置来源, env or cli
 }
-
-// 全局配置
-type GlobalConf struct {
-	ConfigLocal
-	ConfWebServer
-	ConfGinWeb
-	ConfLogTask
-	ConfStress
-	ConfMetrics
-	ConfRedis
-	ConfMysql
-	ConfBlogMysql
-	ConfBlogApi
-}
