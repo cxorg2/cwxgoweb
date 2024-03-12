@@ -18,10 +18,10 @@ jobs:
       - name: Checkout 检出代码
         uses: actions/checkout@main
 
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.21'
+      # - name: Set up Go
+      #   uses: actions/setup-go@v5
+      #   with:
+      #     go-version: '1.21'
 
-      - name: Build
+      - name: go Build
         run: cd cmd && go build -o app
