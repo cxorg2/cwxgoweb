@@ -1,8 +1,12 @@
 
+![MAN分支自动构建状态](https://github.com/cxorg2/cwxgoweb/actions/workflows/work.yml/badge.svg)
+![dev分支自动构建状态](https://github.com/cxorg2/cwxgoweb/actions/workflows/dev.yml/badge.svg)
+
+
+
 [![Build Status](https://drone.services.wait/api/badges/chenwx/cwxgoweb/status.svg)](https://drone.services.wait/chenwx/cwxgoweb)
 
-GITHUB 自动构建状态
-![example workflow](https://github.com/github/docs/actions/workflows/work.yml/badge.svg)
+
 
 # 描述
 

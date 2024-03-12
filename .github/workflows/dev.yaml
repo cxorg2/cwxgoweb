@@ -1,4 +1,5 @@
-name: auto build
+
+name: 开发环境自动构建
 
 on:
   push:

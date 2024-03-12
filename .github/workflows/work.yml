@@ -1,5 +1,5 @@
 
-name: auto build
+name: 联调环境自动构建
 
 on:
   push:
